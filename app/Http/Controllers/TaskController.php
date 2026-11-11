@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Task;
+use App\Models\Comment;
+
 
 class TaskController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-     public function index()
+    public function index()
     {
-        $tasks = Task::all();
+        $tasks = Task::with(['project', 'comments'])->get();
         return response()->json($tasks);
     }
 
@@ -30,9 +32,11 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'project_id' => 'required|integer|exists:projects,id',
             'title' => 'required|string',
         ]);
         $task = Task::create([
+            'project_id' => $request->input('project_id'),
             'title' => $request->input('title'),
             'description' => $request->input('description'),
         ]);
@@ -44,7 +48,7 @@ class TaskController extends Controller
      */
     public function show(string $id)
     {
-        $task = Task::find($id);
+        $task = Task::with(['project', 'comments'])->find($id);
         if (!$task){
             return response()->json(['messege' => 'task not found'], 404);
         }
