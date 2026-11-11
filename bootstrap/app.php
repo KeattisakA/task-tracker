@@ -18,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         'tasks/*',
         'projects',
         'projects/*',
+        'comments/',
+        'comments/*',
     ]);
 })
     ->withExceptions(function (Exceptions $exceptions): void {
