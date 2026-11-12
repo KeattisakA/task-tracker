@@ -11,6 +11,6 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::resource('tasks', TaskController::class);
-Route::resource('projects', ProjectController::class);
-Route::resource('comments', ProjectController::class);
+Route::apiResource('tasks', TaskController::class);
+Route::apiResource('projects', ProjectController::class);
+Route::apiResource('comments', CommentController::class);
