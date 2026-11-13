@@ -6,13 +6,15 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Http\Resources\ProjectResource;
 
 class ProjectController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $project = Project::with(['tasks'])->get();
-        return response()->json($project); 
+        $project = Project::with(['tasks'])
+            ->when($request->search, fn($q, $search) => $q->where ('name', 'like',"%{$search}%")->paginate(20));
+        return ProjectResource::collection($project);
     }
 
     public function store(StoreProjectRequest $request)
@@ -24,7 +26,7 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         $project->load(['tasks']);
-        return response()->json($project);
+        return new ProjectResource($project);
     }
 
     public function update(UpdateProjectRequest $request, Project $project)
