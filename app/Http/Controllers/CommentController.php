@@ -2,92 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Comment;
+use App\Http\Requests\StoreCommentRequest;
+use App\Http\Requests\UpdateCommentRequest;
 
 class CommentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $comments = Comment::with('task.project')->get();
         return response()->json($comments);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreCommentRequest $request)
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'task_id' => 'required|integer|exists:tasks,id',
-            'body' => 'required|string',
-        ]);
-        $comment = Comment::create([
-            'task_id' => $request->input('task_id'),
-            'body' => $request->input('body'),
-        ]);
+        $comment = Comment::create($request->validated());
         return response()->json($comment, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Comment $comment)
     {
-        $comment = Comment::with('task.project')->find($id);
-        if (!$comment){
-            return response()->json(['message' => 'comment not found'], 404);
-        }
+        $comment->load('task.project');
         return response()->json($comment);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(UpdateCommentRequest $request, Comment $comment)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $request->validate([
-            'task_id' => 'required|integer|exists:tasks,id',
-        ]);
-        $comment = Comment::find($id);
-        if (!$comment) {
-            return response()->json(['messege' => 'comment not found'], 404);
-        }
-
-        $comment->task_id = $request->input('task_id');
-        $comment->body = $request->input('body');
-        $comment->save();
+        $comment->update($request->validated());
         return response()->json($comment);
     }
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+
+    public function destroy(Comment $comment)
     {
-        $comment = Comment::Find($id);
-        if (!$comment) {
-            return response()->json(['messege' => 'comment not found'], 404);
-        }
         $comment->delete();
-        return response()->json(['messege' => 'delete successfully']);
+        return response()->json(['message' => 'Comment deleted successfully']);
     }
 }

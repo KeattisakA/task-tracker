@@ -2,95 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Task;
-use App\Models\Comment;
-
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 
 class TaskController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $tasks = Task::with(['project', 'comments'])->get();
-        return response()->json($tasks);
+        return response()->json($tasks); 
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreTaskRequest $request)
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'project_id' => 'required|integer|exists:projects,id',
-            'title' => 'required|string',
-        ]);
-        $task = Task::create([
-            'project_id' => $request->input('project_id'),
-            'title' => $request->input('title'),
-            'description' => $request->input('description'),
-        ]);
+        $task = Task::create($request->validated());
         return response()->json($task, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Task $task)
     {
-        $task = Task::with(['project', 'comments'])->find($id);
-        if (!$task){
-            return response()->json(['messege' => 'task not found'], 404);
-        }
+        $task->load(['project', 'comments']);
         return response()->json($task);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(UpdateTaskRequest $request, Task $task)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $request->validate([
-            'title' => 'required|string'
-        ]);
-        $task = Task::find($id);
-        if (!$task) {
-            return response()->json(['messege' => 'task not found'], 404);
-        }
-
-        $task->title = $request->input('title');
-        $task->description = $request->input('description');
-        $task->save();
+        $task->update($request->validated());
         return response()->json($task);
     }
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+
+    public function destroy(Task $task)
     {
-        $task = Task::Find($id);
-        if (!$task) {
-            return response()->json(['messege' => 'task not found'], 404);
-        }
         $task->delete();
-        return response()->json(['messege' => 'delete successfully']);
+        return response()->json(['message' => 'Task deleted successfully']); 
     }
 }
