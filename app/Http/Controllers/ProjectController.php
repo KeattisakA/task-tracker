@@ -13,7 +13,8 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $project = Project::with(['tasks'])
-            ->when($request->search, fn($q, $search) => $q->where ('name', 'like',"%{$search}%")->paginate(20));
+            ->when($request->search,fn($q, $search) => $q->where('name', 'like',"%{$search}%"))
+            ->paginate(20);
         return ProjectResource::collection($project);
     }
 

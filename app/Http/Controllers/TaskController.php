@@ -14,7 +14,8 @@ class TaskController extends Controller
     public function index(Request $request)
     {
         $tasks = Task::with(['project', 'comments'])
-            ->when($request->search, fn($q, $search) => $q->where ('title', 'like',"%{$search}%")->paginate(20));
+            ->when($request->search, fn($q, $search) => $q->where ('title', 'like',"%{$search}%"))
+            ->paginate(20);
         return TaskResource::collection($tasks);
     }
 
