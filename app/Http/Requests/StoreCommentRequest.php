@@ -8,14 +8,13 @@ class StoreCommentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // อย่าลืมเปลี่ยนเป็น true
+        return true;
     }
 
     public function rules(): array
     {
         return [
-            'task_id' => ['required', 'integer', 'exists:tasks,id'],
-            'body' => ['required', 'string'],
+            'body' => ['required', 'string', 'max:1000'],
         ];
     }
 }
