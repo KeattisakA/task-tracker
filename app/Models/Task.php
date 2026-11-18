@@ -9,7 +9,7 @@ use App\Models\Project;
 use App\Models\Comment;
 
 #[Table('tasks')]
-#[Fillable(['project_id','title','description'])]
+#[Fillable(['project_id', 'assignee_id', 'title', 'description', 'status'])]
 class Task extends Model
 {
     public function project()

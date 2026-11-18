@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
+use Illuminate\Support\Facades\Gate;
 
 class ProjectController extends Controller
 {
@@ -32,12 +33,14 @@ class ProjectController extends Controller
 
     public function update(UpdateProjectRequest $request, Project $project)
     {
+        Gate::authorize('update', $project);
         $project->update($request->validated());
         return response()->json($project);
     }
 
     public function destroy(Project $project)
     {
+        Gate::authorize('delete', $project);
         $project->delete();
         return response()->json(['message' => 'Project deleted successfully']); 
     }

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use App\Models\Task;
 
 #[Table('projects')]
-#[Fillable(['name','description'])]
+#[Fillable(['owner_id', 'name', 'description'])]
 
 class Project extends Model
 {

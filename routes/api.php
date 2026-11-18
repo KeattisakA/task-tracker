@@ -15,13 +15,13 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
-
+ 
 Route::apiResource('tasks', TaskController::class);
 Route::apiResource('projects', ProjectController::class);
 
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::post('/me', [AuthController::class, 'me']);
-
+Route::get('/comments', [CommentController::class, 'allComments']);
 
 Route::get('/tasks/{task}/comments', [CommentController::class, 'index']);
 Route::post('/tasks/{task}/comments', [CommentController::class, 'store']);

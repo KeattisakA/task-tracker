@@ -11,6 +11,11 @@ use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
+    public function allComments()
+    {
+        $comments = Comment::latest()->paginate(10);
+        return CommentResource::collection($comments);
+    }
     public function index(Task $task)
     {
         $comments = $task->comments()->latest()->paginate(10);
@@ -21,11 +26,6 @@ class CommentController extends Controller
     {
         $comment = $task->comments()->create($request->validated());
         return response()->json(new CommentResource($comment), 201);
-
-        
-    //     return (new CommentResource($comment))
-    // ->response()
-    // ->setStatusCode(201);
     }
 
     public function show(Comment $comment)

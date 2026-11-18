@@ -6,6 +6,7 @@ use App\Models\Task;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
+use Illuminate\Support\Facades\Gate;
 
 use Illuminate\Http\Request;
 
@@ -33,12 +34,14 @@ class TaskController extends Controller
 
     public function update(UpdateTaskRequest $request, Task $task)
     {
+        Gate::authorize('update', $task);
         $task->update($request->validated());
         return response()->json($task);
     }
 
     public function destroy(Task $task)
     {
+        Gate::authorize('delete', $task);
         $task->delete();
         return response()->json(['message' => 'Task deleted successfully']); 
     }
