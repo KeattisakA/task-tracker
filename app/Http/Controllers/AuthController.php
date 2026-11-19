@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
+
 
 class AuthController extends Controller
 {
@@ -22,7 +25,7 @@ class AuthController extends Controller
             'password' => bcrypt($validatedData['password']),
         ]);
 
-        $token = $user->createToken('auth_token')->accessToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'access_token' => $token,
@@ -30,6 +33,21 @@ class AuthController extends Controller
         ]);
     }
 
+    public function me(Request $request) 
+    {
+        return new UserResource($request->user());
+    }
+    
+    public function updateProfile(UpdateProfileRequest $request) 
+    {
+        // ใช้ $request->validated() เพื่อดึงเฉพาะฟิลด์ที่ผ่าน rules เท่านั้น
+        $user = $request->user();
+        $user->update($request->validated());
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user' => new UserResource($user),
+        ]);
+    }
 
     public function login(Request $request) {
         $request->validate([
@@ -61,7 +79,4 @@ class AuthController extends Controller
         ]);
     }
     
-    public function me(Request $request) {
-        return $request->user();
-    }
 }

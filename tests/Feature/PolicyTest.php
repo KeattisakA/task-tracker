@@ -23,7 +23,7 @@ class PolicyTest extends TestCase
     {
         parent::setUp();
 
-        $this->admin = User::create([
+        $this->admin = User::forceCreate([
             'name' => 'Admin User',
             'email' => 'admin@test.com',
             'password' => bcrypt('password'),
@@ -160,5 +160,49 @@ class PolicyTest extends TestCase
         $this->actingAs($this->otherMember)
             ->deleteJson("/api/projects/{$this->project->id}")
             ->assertStatus(403);
+    }
+
+    public function test_user_cannot_escalate_role_via_profile_update(): void
+    {
+        $this->actingAs($this->otherMember)
+            ->patchJson('/api/me', [
+                'name' => 'Somchai',
+                'role' => 'admin',
+            ])
+            ->assertStatus(200);
+
+        $this->assertDatabaseHas('users', [
+            'id' => $this->otherMember->id,
+            'name' => 'Somchai',
+            'role' => 'member',
+        ]);
+    }
+
+    public function test_me_endpoint_returns_user_resource_without_password(): void
+    {
+        $response = $this->actingAs($this->otherMember)
+            ->getJson('/api/me')
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => ['id', 'name', 'email', 'role', 'created_at']
+            ]);
+
+        $this->assertArrayNotHasKey('password', $response->json('data'));
+    }
+
+    public function test_login_rate_limit_throttle(): void
+    {
+        for ($i = 0; $i < 5; $i++) {
+            $this->postJson('/api/login', [
+                'email' => 'wrong@test.com',
+                'password' => 'wrong-pass',
+            ])->assertStatus(401);
+        }
+
+        // 6th attempt should be blocked with 429
+        $this->postJson('/api/login', [
+            'email' => 'wrong@test.com',
+            'password' => 'wrong-pass',
+        ])->assertStatus(429);
     }
 }

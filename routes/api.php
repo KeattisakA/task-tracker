@@ -12,7 +12,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 
 Route::middleware('auth:sanctum')->group(function () {
  
@@ -20,7 +20,8 @@ Route::apiResource('tasks', TaskController::class);
 Route::apiResource('projects', ProjectController::class);
 
 Route::post('/logout', [AuthController::class, 'logout']);
-Route::post('/me', [AuthController::class, 'me']);
+Route::match(['get', 'post'], '/me', [AuthController::class, 'me']);
+Route::patch('/me', [AuthController::class, 'updateProfile']);
 Route::get('/comments', [CommentController::class, 'allComments']);
 
 Route::get('/tasks/{task}/comments', [CommentController::class, 'index']);
