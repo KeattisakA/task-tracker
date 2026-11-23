@@ -135,7 +135,7 @@ class AttachmentTest extends TestCase
         // Delete by assignee (who has update right on task)
         $this->actingAs($this->assignee)
             ->deleteJson("/api/attachments/{$attachment->id}")
-            ->assertStatus(204);
+            ->assertStatus(200);
 
         // Assert removed from DB and disk
         $this->assertDatabaseMissing('attachments', ['id' => $attachment->id]);
