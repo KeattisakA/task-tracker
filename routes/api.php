@@ -6,6 +6,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AttachmentController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -27,6 +28,10 @@ Route::get('/comments', [CommentController::class, 'allComments']);
 Route::get('/tasks/{task}/comments', [CommentController::class, 'index']);
 Route::post('/tasks/{task}/comments', [CommentController::class, 'store']);
 Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+
+Route::post('/tasks/{task}/attachments', [AttachmentController::class, 'store']);
+Route::get('/attachments/{attachment}/download', [AttachmentController::class, 'download']);
+Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy']);
 
 }
 );

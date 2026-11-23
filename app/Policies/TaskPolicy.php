@@ -26,7 +26,8 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
-        return false;
+        return $user->id === $task->project->owner_id
+            || $user->id === $task->assignee_id;
     }
 
     /**

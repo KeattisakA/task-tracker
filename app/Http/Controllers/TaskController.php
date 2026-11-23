@@ -26,6 +26,7 @@ class TaskController extends Controller
         return response()->json($task, 201);
     }
 
+
     public function show(Task $task)
     {
         $task->load(['project', 'comments']);
