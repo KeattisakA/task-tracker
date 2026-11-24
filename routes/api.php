@@ -29,6 +29,10 @@ Route::get('/tasks/{task}/comments', [CommentController::class, 'index']);
 Route::post('/tasks/{task}/comments', [CommentController::class, 'store']);
 Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
 
+Route::post('/tasks/{task}/assign', [TaskController::class, 'assign']);
+
+Route::post('/projects/{project}/report', [ProjectController::class, 'generateReport']);
+
 Route::post('/tasks/{task}/attachments', [AttachmentController::class, 'store']);
 Route::get('/attachments/{attachment}/download', [AttachmentController::class, 'download']);
 Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy']);

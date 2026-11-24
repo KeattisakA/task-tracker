@@ -9,6 +9,7 @@ use App\Http\Resources\TaskResource;
 use Illuminate\Support\Facades\Gate;
 
 use Illuminate\Http\Request;
+use App\Events\TaskAssigned;
 
 class TaskController extends Controller
 {
@@ -45,5 +46,26 @@ class TaskController extends Controller
         Gate::authorize('delete', $task);
         $task->delete();
         return response()->json(['message' => 'Task deleted successfully']); 
+    }
+
+    //เพิ่มเมธอด assign() ตรวจสิทธิ์, ตรวจสอบข้อมูล, อัปเดตผู้รับงาน และยิง Event
+    public function assign(Request $request, Task $task)
+    {
+        Gate::authorize('update', $task);
+
+        $validated = $request->validate([
+            'assignee_id' => ['required', 'exists:users,id'],
+        ]);
+
+        $task->update([
+            'assignee_id' => $validated['assignee_id'],
+        ]);
+
+        TaskAssigned::dispatch($task);
+
+        return response()->json([
+            'message' => 'Task assigned successfully',
+            'task' => new TaskResource($task->fresh()->load(['project', 'assignee'])),
+        ]);
     }
 }

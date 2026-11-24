@@ -8,6 +8,7 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use Illuminate\Support\Facades\Gate;
+use App\Jobs\GenerateProjectReport;
 
 class ProjectController extends Controller
 {
@@ -43,5 +44,14 @@ class ProjectController extends Controller
         Gate::authorize('delete', $project);
         $project->delete();
         return response()->json(['message' => 'Project deleted successfully']); 
+    }
+    
+        public function generateReport(Project $project)
+    {
+        Gate::authorize('view', $project);
+        GenerateProjectReport::dispatch($project);
+        return response()->json([
+            'message' => 'Project report generation has been queued.',
+        ], 202);
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use App\Models\Project;
 use App\Models\Comment;
 use App\Models\Attachment;
+use App\Models\User;
 
 #[Table('tasks')]
 #[Fillable(['project_id', 'assignee_id', 'title', 'description', 'status'])]
@@ -16,6 +17,11 @@ class Task extends Model
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function assignee()
+    {
+        return $this->belongsTo(User::class, 'assignee_id');
     }
 
     public function comments()

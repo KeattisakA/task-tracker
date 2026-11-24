@@ -25,7 +25,7 @@ class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        return false;
+        return $user->id === $project->owner_id;
     }
 
     /**
