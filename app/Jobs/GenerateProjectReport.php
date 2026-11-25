@@ -6,6 +6,7 @@ use App\Models\Project;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class GenerateProjectReport implements ShouldQueue
 {
@@ -30,20 +31,34 @@ class GenerateProjectReport implements ShouldQueue
     public function handle(): void
     {
         try {
-            Log::info('Report generation started', [
+            Log::channel('job')->info('Report generation started', [
                 'project_id' => $this->project->id,
             ]);
-            // throw new \Exception("ระบบฐานข้อมูลภายนอกขัดข้อง (จำลอง Error)");
+
+            // throw new \Exception('ระบบฐานข้อมูลภายนอกขัดข้อง (จำลอง Error)');
             sleep(3);
-            Log::info('Report generated', [
+
+            Log::channel('job')->info('Report generated', [
                 'project_id' => $this->project->id,
             ]);
-        } catch (\Throwable $e) {
-            Log::error('Report failed', [
+        } catch (Throwable $e) {
+            Log::channel('job')->error('Report failed', [
                 'project_id' => $this->project->id,
                 'error' => $e->getMessage(),
             ]);
+
             throw $e;
         }
+    }
+
+    /**
+     * ทำงานอัตโนมัติเมื่อ Job ล้มเหลวครบตามจำนวน $tries แล้ว
+     */
+    public function failed(Throwable $exception): void
+    {
+        Log::channel('job')->error('Report job failed permanently', [
+            'project_id' => $this->project->id,
+            'error' => $exception->getMessage(),
+        ]);
     }
 }

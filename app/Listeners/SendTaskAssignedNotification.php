@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\TaskAssigned;
 use App\Notifications\TaskAssignedNotification;
+use Illuminate\Support\Facades\Log;
 
 class SendTaskAssignedNotification
 {
@@ -17,8 +18,18 @@ class SendTaskAssignedNotification
      */
     public function handle(TaskAssigned $event): void
     {
-        $event->task->assignee?->notify(
-            new TaskAssignedNotification($event->task)
-        );
+        $assignee = $event->task->assignee;
+
+        if ($assignee) {
+            $assignee->notify(
+                new TaskAssignedNotification($event->task)
+            );
+
+            Log::channel('email')->info('Task assigned notification queued', [
+                'task_id' => $event->task->id,
+                'assignee_id' => $assignee->id,
+                'email' => $assignee->email,
+            ]);
+        }
     }
 }
