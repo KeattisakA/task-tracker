@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Task;
-use App\Models\Attachment;
 use App\Http\Resources\AttachmentResource;
+use App\Models\Attachment;
+use App\Models\Task;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
@@ -98,8 +98,9 @@ class AttachmentController extends Controller
         Gate::authorize('update', $attachment->task);
         Storage::disk(config('filesystems.default'))->delete($attachment->path);
         $attachment->delete();
+
         return response()->json([
-            'message' => 'Attachment deleted successfully'
+            'message' => 'Attachment deleted successfully',
         ], 200);
     }
 
@@ -109,7 +110,7 @@ class AttachmentController extends Controller
             $attachment->path,
             now()->addMinutes(15),
             [
-                'ResponseContentDisposition' => 'attachment; filename="' . $attachment->original_name . '"',
+                'ResponseContentDisposition' => 'attachment; filename="'.$attachment->original_name.'"',
             ]
         );
     }

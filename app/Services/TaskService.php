@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Events\TaskAssigned;
 use App\Models\Task;
 use App\Models\User;
-use App\Events\TaskAssigned;
 use Illuminate\Support\Facades\Log;
 
 class TaskService
@@ -18,6 +18,7 @@ class TaskService
             'assignee_id' => $to->id,
             'by_user_id' => auth()->id(),
         ]);
+
         return $task;
     }
 }

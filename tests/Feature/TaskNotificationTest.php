@@ -2,25 +2,29 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Task;
-use App\Models\Project;
 use App\Events\TaskAssigned;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\User;
 use App\Notifications\TaskAssignedNotification;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Event;
 use App\Services\TaskService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Notification;
+use Tests\TestCase;
 
 class TaskNotificationTest extends TestCase
 {
     use RefreshDatabase;
 
     private User $owner;
+
     private User $assignee;
+
     private User $otherMember;
+
     private Project $project;
+
     private Task $task;
 
     protected function setUp(): void
@@ -152,7 +156,7 @@ class TaskNotificationTest extends TestCase
     {
         Event::fake([TaskAssigned::class]);
 
-        $service = new TaskService();
+        $service = new TaskService;
         $updatedTask = $service->assign($this->task, $this->otherMember);
 
         $this->assertEquals($this->otherMember->id, $updatedTask->assignee_id);

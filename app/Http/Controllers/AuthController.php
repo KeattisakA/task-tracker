@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\UserResource;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
 
 class AuthController extends Controller
 {
-    public function register(Request $request) {
+    public function register(Request $request)
+    {
 
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
@@ -33,29 +33,31 @@ class AuthController extends Controller
         ]);
     }
 
-    public function me(Request $request) 
+    public function me(Request $request)
     {
         return new UserResource($request->user());
     }
-    
-    public function updateProfile(UpdateProfileRequest $request) 
+
+    public function updateProfile(UpdateProfileRequest $request)
     {
         // ใช้ $request->validated() เพื่อดึงเฉพาะฟิลด์ที่ผ่าน rules เท่านั้น
         $user = $request->user();
         $user->update($request->validated());
+
         return response()->json([
             'message' => 'Profile updated successfully',
             'user' => new UserResource($user),
         ]);
     }
 
-    public function login(Request $request) {
+    public function login(Request $request)
+    {
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        if (! Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'message' => 'Invalid credentials',
             ], 401);
@@ -71,12 +73,12 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
             'message' => 'Logged out successfully',
         ]);
     }
-    
 }

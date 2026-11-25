@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use App\Models\Task;
+use Illuminate\Database\Eloquent\Model;
 
 #[Table('projects')]
 #[Fillable(['owner_id', 'name', 'description'])]
@@ -15,5 +14,4 @@ class Project extends Model
     {
         return $this->hasMany(Task::class);
     }
-
 }

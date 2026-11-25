@@ -6,7 +6,6 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -15,15 +14,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-    $middleware->validateCsrfTokens(except: [
-        'tasks',
-        'tasks/*',
-        'projects',
-        'projects/*',
-        'comments/',
-        'comments/*',
-    ]);
-})
+        $middleware->validateCsrfTokens(except: [
+            'tasks',
+            'tasks/*',
+            'projects',
+            'projects/*',
+            'comments/',
+            'comments/*',
+        ]);
+    })
     ->withExceptions(function (Exceptions $exceptions) {
         // 1. ถ้า URL ขึ้นต้นด้วย api/ ให้ตอบกลับเป็น JSON เสมอ (แม้ลืมใส่ Header Accept ก็ตาม)
         $exceptions->shouldRenderJsonWhen(

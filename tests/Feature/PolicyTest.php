@@ -2,21 +2,26 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Task;
 use App\Models\Project;
+use App\Models\Task;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class PolicyTest extends TestCase
 {
     use RefreshDatabase;
 
     private User $admin;
+
     private User $owner;
+
     private User $assignee;
+
     private User $otherMember;
+
     private Project $project;
+
     private Task $task;
 
     protected function setUp(): void
@@ -184,7 +189,7 @@ class PolicyTest extends TestCase
             ->getJson('/api/me')
             ->assertStatus(200)
             ->assertJsonStructure([
-                'data' => ['id', 'name', 'email', 'role', 'created_at']
+                'data' => ['id', 'name', 'email', 'role', 'created_at'],
             ]);
 
         $this->assertArrayNotHasKey('password', $response->json('data'));

@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Project;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class ProjectPolicy
 {
@@ -12,6 +11,7 @@ class ProjectPolicy
     {
         return $user->role === 'admin' ? true : null;
     }
+
     /**
      * Determine whether the user can view any models.
      */

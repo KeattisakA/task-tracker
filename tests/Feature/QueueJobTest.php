@@ -2,19 +2,21 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Project;
 use App\Jobs\GenerateProjectReport;
+use App\Models\Project;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
+use Tests\TestCase;
 
 class QueueJobTest extends TestCase
 {
     use RefreshDatabase;
 
     private User $owner;
+
     private User $otherMember;
+
     private Project $project;
 
     protected function setUp(): void

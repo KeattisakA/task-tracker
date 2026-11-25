@@ -4,15 +4,15 @@ namespace App\Policies;
 
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class TaskPolicy
-{   
-    public function before(User $user, string $ability): ?bool
 {
-    // ถ้าเป็น admin ให้ผ่านทุกอย่างได้เลย ถ้าไม่ใช่ให้คืน null เพื่อไปตรวจกฎข้างล่างต่อ
-    return $user->role === 'admin' ? true : null;
-}
+    public function before(User $user, string $ability): ?bool
+    {
+        // ถ้าเป็น admin ให้ผ่านทุกอย่างได้เลย ถ้าไม่ใช่ให้คืน null เพื่อไปตรวจกฎข้างล่างต่อ
+        return $user->role === 'admin' ? true : null;
+    }
+
     /**
      * Determine whether the user can view any models.
      */
@@ -47,6 +47,7 @@ class TaskPolicy
         return $user->id === $task->project->owner_id
             || $user->id === $task->assignee_id;
     }
+
     /**
      * Determine whether the user can delete the model.
      */

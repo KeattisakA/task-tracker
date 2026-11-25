@@ -2,22 +2,26 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Task;
 use App\Models\Project;
+use App\Models\Task;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class AttachmentTest extends TestCase
 {
     use RefreshDatabase;
 
     private User $owner;
+
     private User $assignee;
+
     private User $otherMember;
+
     private Project $project;
+
     private Task $task;
 
     protected function setUp(): void
@@ -72,7 +76,7 @@ class AttachmentTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonStructure([
-                'data' => ['id', 'task_id', 'original_name', 'size', 'created_at']
+                'data' => ['id', 'task_id', 'original_name', 'size', 'created_at'],
             ]);
 
         $attachment = $this->task->attachments()->first();
@@ -156,7 +160,7 @@ class AttachmentTest extends TestCase
 
         $uploadResponse->assertStatus(201)
             ->assertJsonStructure([
-                'data' => ['id', 'task_id', 'original_name', 'size', 'created_at']
+                'data' => ['id', 'task_id', 'original_name', 'size', 'created_at'],
             ]);
 
         $attachmentId = $uploadResponse->json('data.id');

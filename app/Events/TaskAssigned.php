@@ -14,8 +14,5 @@ class TaskAssigned
     /**
      * Create a new event instance.
      */
-    public function __construct(public Task $task)
-    {
-        
-    }
+    public function __construct(public Task $task) {}
 }

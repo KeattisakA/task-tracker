@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use App\Models\Task;
-
+use Illuminate\Database\Eloquent\Model;
 
 #[Table('comments')]
-#[Fillable(['task_id','body'])]
+#[Fillable(['task_id', 'body'])]
 
 class Comment extends Model
 {
@@ -16,5 +14,4 @@ class Comment extends Model
     {
         return $this->belongsTo(Task::class);
     }
-
 }

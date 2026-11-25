@@ -15,9 +15,7 @@ class TaskAssignedNotification extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct(public Task $task)
-    {
-    }
+    public function __construct(public Task $task) {}
 
     /**
      * Get the notification's delivery channels.

@@ -13,6 +13,7 @@ class GenerateProjectReport implements ShouldQueue
 
     // ลองใหม่ได้สูงสุด 3 ครั้ง เว้นระยะ 10 วินาที
     public int $tries = 3;
+
     public int $backoff = 10;
 
     /**
@@ -27,7 +28,7 @@ class GenerateProjectReport implements ShouldQueue
      * Execute the job.
      */
     public function handle(): void
-    {   
+    {
         try {
             Log::info('Report generation started', [
                 'project_id' => $this->project->id,

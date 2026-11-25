@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreProjectRequest extends FormRequest
@@ -13,11 +12,10 @@ class StoreProjectRequest extends FormRequest
     }
 
     public function rules(): array
-{
-    return [
-        'name'=> ['required', 'string', 'max:255'],
-        'description' => ['nullable', 'text']
-];
-}
-
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'text'],
+        ];
+    }
 }
