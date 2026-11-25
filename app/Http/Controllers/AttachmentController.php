@@ -11,10 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 class AttachmentController extends Controller
 {
-    /**
-     * POST /api/tasks/{task}/attachments (form-data)
-     * สไลด์หน้า 4: รับไฟล์ ตรวจ เก็บ แล้วบันทึกข้อมูลไฟล์ลงตาราง
-     */
+
     public function store(Request $request, Task $task)
     {
         Gate::authorize('update', $task);
@@ -37,10 +34,6 @@ class AttachmentController extends Controller
             ->setStatusCode(201);
     }
 
-    /**
-     * GET /api/attachments/{attachment}/download
-     * สไลด์หน้า 5: ดาวน์โหลดไฟล์
-     */
     public function download(Attachment $attachment)
     {
         Gate::authorize('view', $attachment->task);
@@ -51,10 +44,6 @@ class AttachmentController extends Controller
         );
     }
 
-    /**
-     * DELETE /api/attachments/{attachment}
-     * สไลด์หน้า 5: ลบไฟล์จริงใน disk และแถวใน DB
-     */
     public function destroy(Attachment $attachment)
     {
         Gate::authorize('update', $attachment->task);

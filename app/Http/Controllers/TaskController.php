@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Gate;
 
 use Illuminate\Http\Request;
 use App\Events\TaskAssigned;
+use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
@@ -62,6 +63,12 @@ class TaskController extends Controller
         ]);
 
         TaskAssigned::dispatch($task);
+
+        Log::info('Task assigned', [
+            'task_id' => $task->id,
+            'assignee_id' => $validated['assignee_id'],
+            'by_user_id' => $request->user()?->id,
+        ]);
 
         return response()->json([
             'message' => 'Task assigned successfully',

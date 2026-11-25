@@ -28,12 +28,21 @@ class GenerateProjectReport implements ShouldQueue
      */
     public function handle(): void
     {   
-        // throw new \Exception("ระบบภายนอกขัดข้อง จำลอง Error!");
-        // // คำนวณสรุปข้อมูลโปรเจกต์
-        Log::info("กำลังเริ่มสร้างรายงานสำหรับ Project: {$this->project->name} (ID: {$this->project->id})");
-
-        sleep(3);
-
-        Log::info("สร้างรายงาน Project ID: {$this->project->id} สำเร็จเรียบร้อยแล้ว!");
+        try {
+            Log::info('Report generation started', [
+                'project_id' => $this->project->id,
+            ]);
+            // throw new \Exception("ระบบฐานข้อมูลภายนอกขัดข้อง (จำลอง Error)");
+            sleep(3);
+            Log::info('Report generated', [
+                'project_id' => $this->project->id,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Report failed', [
+                'project_id' => $this->project->id,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
     }
 }

@@ -46,7 +46,7 @@ class ProjectController extends Controller
         return response()->json(['message' => 'Project deleted successfully']); 
     }
     
-        public function generateReport(Project $project)
+    public function generateReport(Project $project)
     {
         Gate::authorize('view', $project);
         GenerateProjectReport::dispatch($project);
