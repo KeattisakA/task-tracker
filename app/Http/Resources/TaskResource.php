@@ -17,5 +17,4 @@ class TaskResource extends JsonResource
         'project'=> new ProjectResource($this->whenLoaded('project'))
     ];
 }
-
 }

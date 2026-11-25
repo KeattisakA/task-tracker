@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\User;
+use App\Services\TaskService;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Requests\AssignTaskRequest;
 use App\Http\Resources\TaskResource;
 use Illuminate\Support\Facades\Gate;
 
@@ -49,30 +52,14 @@ class TaskController extends Controller
         return response()->json(['message' => 'Task deleted successfully']); 
     }
 
-    //เพิ่มเมธอด assign() ตรวจสิทธิ์, ตรวจสอบข้อมูล, อัปเดตผู้รับงาน และยิง Event
-    public function assign(Request $request, Task $task)
-    {
+    public function assign(
+        AssignTaskRequest $request,
+        Task $task,
+        TaskService $service,
+    ) {
         Gate::authorize('update', $task);
-
-        $validated = $request->validate([
-            'assignee_id' => ['required', 'exists:users,id'],
-        ]);
-
-        $task->update([
-            'assignee_id' => $validated['assignee_id'],
-        ]);
-
-        TaskAssigned::dispatch($task);
-
-        Log::info('Task assigned', [
-            'task_id' => $task->id,
-            'assignee_id' => $validated['assignee_id'],
-            'by_user_id' => $request->user()?->id,
-        ]);
-
-        return response()->json([
-            'message' => 'Task assigned successfully',
-            'task' => new TaskResource($task->fresh()->load(['project', 'assignee'])),
-        ]);
+        $to = User::findOrFail($request->assignee_id);
+        return (new TaskResource($service->assign($task, $to)))
+            ->additional(['message' => 'Task assigned successfully']);
     }
 }

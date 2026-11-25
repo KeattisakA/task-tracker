@@ -10,6 +10,8 @@ use App\Events\TaskAssigned;
 use App\Notifications\TaskAssignedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Event;
+use App\Services\TaskService;
 
 class TaskNotificationTest extends TestCase
 {
@@ -144,5 +146,23 @@ class TaskNotificationTest extends TestCase
                 'assignee_id' => $this->otherMember->id,
             ])
             ->assertStatus(403);
+    }
+
+    public function test_task_service_assigns_user_and_dispatches_event(): void
+    {
+        Event::fake([TaskAssigned::class]);
+
+        $service = new TaskService();
+        $updatedTask = $service->assign($this->task, $this->otherMember);
+
+        $this->assertEquals($this->otherMember->id, $updatedTask->assignee_id);
+        $this->assertDatabaseHas('tasks', [
+            'id' => $this->task->id,
+            'assignee_id' => $this->otherMember->id,
+        ]);
+
+        Event::assertDispatched(TaskAssigned::class, function ($event) {
+            return $event->task->id === $this->task->id;
+        });
     }
 }

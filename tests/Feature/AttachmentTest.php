@@ -23,7 +23,7 @@ class AttachmentTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Storage::fake('local');
+        Storage::fake(config('filesystems.default'));
 
         $this->owner = User::forceCreate([
             'name' => 'Owner User',
@@ -78,7 +78,7 @@ class AttachmentTest extends TestCase
         $attachment = $this->task->attachments()->first();
         $this->assertNotNull($attachment);
         $this->assertEquals('document.pdf', $attachment->original_name);
-        Storage::disk('local')->assertExists($attachment->path);
+        Storage::disk(config('filesystems.default'))->assertExists($attachment->path);
     }
 
     public function test_upload_fails_when_file_exceeds_size_or_wrong_mime(): void
@@ -139,6 +139,78 @@ class AttachmentTest extends TestCase
 
         // Assert removed from DB and disk
         $this->assertDatabaseMissing('attachments', ['id' => $attachment->id]);
-        Storage::disk('local')->assertMissing($attachment->path);
+        Storage::disk(config('filesystems.default'))->assertMissing($attachment->path);
+    }
+
+    public function test_authorized_user_can_get_s3_temporary_signed_url(): void
+    {
+        Storage::fake('s3');
+        config(['filesystems.default' => 's3']);
+
+        $file = UploadedFile::fake()->create('report.pdf', 500, 'application/pdf');
+
+        $uploadResponse = $this->actingAs($this->assignee)
+            ->postJson("/api/tasks/{$this->task->id}/attachments", [
+                'file' => $file,
+            ]);
+
+        $uploadResponse->assertStatus(201)
+            ->assertJsonStructure([
+                'data' => ['id', 'task_id', 'original_name', 'size', 'created_at']
+            ]);
+
+        $attachmentId = $uploadResponse->json('data.id');
+
+        $response = $this->actingAs($this->owner)
+            ->getJson("/api/attachments/{$attachmentId}/signed-url");
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'download_url',
+                'expires_in',
+            ]);
+
+        // Test download endpoint with S3 returns signed url
+        $downloadResponse = $this->actingAs($this->owner)
+            ->getJson("/api/attachments/{$attachmentId}/download");
+
+        $downloadResponse->assertStatus(200)
+            ->assertJsonStructure([
+                'download_url',
+                'expires_in',
+            ]);
+    }
+
+    public function test_public_download_route_works_without_authentication(): void
+    {
+        Storage::fake('local');
+        config(['filesystems.default' => 'local']);
+
+        $file = UploadedFile::fake()->create('public-notes.pdf', 300, 'application/pdf');
+
+        $uploadResponse = $this->actingAs($this->assignee)
+            ->postJson("/api/tasks/{$this->task->id}/attachments", [
+                'file' => $file,
+            ]);
+
+        $attachmentId = $uploadResponse->json('data.id');
+
+        // Without actingAs (no auth token), local disk streams 200 OK
+        $this->get("/api/public/attachments/{$attachmentId}/download")
+            ->assertStatus(200);
+
+        // On S3 disk, redirects to temporary signed URL (302)
+        Storage::fake('s3');
+        config(['filesystems.default' => 's3']);
+
+        $s3Upload = $this->actingAs($this->assignee)
+            ->postJson("/api/tasks/{$this->task->id}/attachments", [
+                'file' => $file,
+            ]);
+
+        $s3AttachmentId = $s3Upload->json('data.id');
+
+        $this->get("/api/public/attachments/{$s3AttachmentId}/download")
+            ->assertStatus(302);
     }
 }

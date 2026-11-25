@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Storage;
 
 class AttachmentController extends Controller
 {
-
     public function store(Request $request, Task $task)
     {
         Gate::authorize('update', $task);
@@ -21,7 +20,8 @@ class AttachmentController extends Controller
         ]);
 
         $file = $request->file('file');
-        $path = $file->store("tasks/{$task->id}", 'local');
+        $disk = config('filesystems.default');
+        $path = $file->store("tasks/{$task->id}", $disk);
 
         $attachment = $task->attachments()->create([
             'path' => $path,
@@ -34,11 +34,60 @@ class AttachmentController extends Controller
             ->setStatusCode(201);
     }
 
-    public function download(Attachment $attachment)
+    /**
+     * ดาวน์โหลดไฟล์ (รองรับทั้ง Stream ตรง และ S3 Signed URL)
+     */
+    public function download(Request $request, Attachment $attachment)
     {
         Gate::authorize('view', $attachment->task);
 
-        return Storage::download(
+        $disk = config('filesystems.default');
+
+        if ($disk === 's3') {
+            $url = $this->makeSignedUrl($attachment);
+
+            if ($request->boolean('redirect', false)) {
+                return redirect()->away($url);
+            }
+
+            return response()->json([
+                'download_url' => $url,
+                'expires_in' => '15 minutes',
+            ]);
+        }
+
+        return Storage::disk($disk)->download(
+            $attachment->path,
+            $attachment->original_name
+        );
+    }
+
+    /**
+     * สร้าง Signed URL ชั่วคราว (15 นาที) สำหรับดาวน์โหลดไฟล์จาก S3 โดยตรง
+     */
+    public function signedUrl(Attachment $attachment)
+    {
+        Gate::authorize('view', $attachment->task);
+
+        return response()->json([
+            'download_url' => $this->makeSignedUrl($attachment),
+            'expires_in' => '15 minutes',
+        ]);
+    }
+
+    /**
+     * Public Download Route (ไม่ต้องมี Auth / Token)
+     * ใครที่มีลิงก์นี้สามารถดาวน์โหลดไฟล์ได้ทันที
+     */
+    public function publicDownload(Attachment $attachment)
+    {
+        $disk = config('filesystems.default');
+
+        if ($disk === 's3') {
+            return redirect()->away($this->makeSignedUrl($attachment));
+        }
+
+        return Storage::disk($disk)->download(
             $attachment->path,
             $attachment->original_name
         );
@@ -47,12 +96,21 @@ class AttachmentController extends Controller
     public function destroy(Attachment $attachment)
     {
         Gate::authorize('update', $attachment->task);
-
-        Storage::delete($attachment->path);
+        Storage::disk(config('filesystems.default'))->delete($attachment->path);
         $attachment->delete();
-
         return response()->json([
             'message' => 'Attachment deleted successfully'
         ], 200);
+    }
+
+    private function makeSignedUrl(Attachment $attachment): string
+    {
+        return Storage::disk('s3')->temporaryUrl(
+            $attachment->path,
+            now()->addMinutes(15),
+            [
+                'ResponseContentDisposition' => 'attachment; filename="' . $attachment->original_name . '"',
+            ]
+        );
     }
 }

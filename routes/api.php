@@ -14,6 +14,7 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+Route::get('/public/attachments/{attachment}/download', [AttachmentController::class, 'publicDownload']);
 
 Route::middleware('auth:sanctum')->group(function () {
  
@@ -35,6 +36,7 @@ Route::post('/projects/{project}/report', [ProjectController::class, 'generateRe
 
 Route::post('/tasks/{task}/attachments', [AttachmentController::class, 'store']);
 Route::get('/attachments/{attachment}/download', [AttachmentController::class, 'download']);
+Route::get('/attachments/{attachment}/signed-url', [AttachmentController::class, 'signedUrl']);
 Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy']);
 
 }
